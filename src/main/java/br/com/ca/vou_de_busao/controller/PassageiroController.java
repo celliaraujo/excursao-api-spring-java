@@ -4,7 +4,6 @@ import br.com.ca.vou_de_busao.model.Passageiro;
 import br.com.ca.vou_de_busao.repository.PassageiroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +36,13 @@ public class PassageiroController {
     }
 
     @PostMapping
-    public ResponseEntity<Passageiro> criar(@RequestBody Passageiro passageiro){
-        Passageiro novo = passageiroRepository.save(passageiro);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
+    public ResponseEntity<?> criar(@RequestBody Passageiro passageiro){
+        if (passageiroRepository.existsByCpf(passageiro.getCpf())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Já existe um passageiro com esse CPF.");
+        }
+        Passageiro salvo = passageiroRepository.save(passageiro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 
     @PutMapping("/{id}")

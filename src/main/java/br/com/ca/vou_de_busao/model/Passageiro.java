@@ -3,6 +3,7 @@ package br.com.ca.vou_de_busao.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,8 +26,11 @@ public class Passageiro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
+    @Column(unique = true, nullable = false)
     private String cpf;
+    @Column(nullable = false)
     private String nome;
+    @Column(nullable = false)
     private String telefone;
 
     @ManyToOne

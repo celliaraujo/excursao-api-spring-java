@@ -1,5 +1,6 @@
 package br.com.ca.vou_de_busao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -25,12 +26,13 @@ public class Excursao {
     private Long id;
     private String destino;
     private LocalDate data;
-
     private BigDecimal preco;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "excursao", cascade = CascadeType.ALL)
     private List<Passageiro> passageiros = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "excursao", cascade = CascadeType.ALL)
     private List<Reserva> reservas = new ArrayList<>();
 }
