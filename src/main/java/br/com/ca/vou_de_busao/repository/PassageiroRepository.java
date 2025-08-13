@@ -8,4 +8,6 @@ import java.util.List;
 public interface PassageiroRepository extends JpaRepository<Passageiro, Long> {
     boolean existsByCpf(String cpf);
 
+    List<Passageiro> findByNome(String nome);
+
 }

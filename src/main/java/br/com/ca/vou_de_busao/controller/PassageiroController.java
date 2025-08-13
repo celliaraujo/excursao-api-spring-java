@@ -28,6 +28,12 @@ public class PassageiroController {
         return passageiroRepository.findAll();
     }
 
+    @GetMapping("/nome/{nome}")
+    public List<Passageiro> listarPorNome(@PathVariable String nome){
+
+        return passageiroRepository.findByNome(nome);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Passageiro> buscarPorId(@PathVariable Long id){
         return passageiroRepository.findById(id)
