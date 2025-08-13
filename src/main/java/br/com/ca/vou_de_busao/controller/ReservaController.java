@@ -3,6 +3,7 @@ package br.com.ca.vou_de_busao.controller;
 import br.com.ca.vou_de_busao.dto.ReservaDTO;
 import br.com.ca.vou_de_busao.exceptions.ExcursaoNotFoundException;
 import br.com.ca.vou_de_busao.exceptions.PassageiroNotFoundException;
+import br.com.ca.vou_de_busao.exceptions.ReservaNotFoundException;
 import br.com.ca.vou_de_busao.model.Excursao;
 import br.com.ca.vou_de_busao.model.Passageiro;
 import br.com.ca.vou_de_busao.model.Reserva;
@@ -59,15 +60,16 @@ public class ReservaController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reserva> atualizar(@PathVariable Long id, @RequestBody Reserva novaReserva) {
-        return reservaRepository.findById(id)
-                .map(reserva -> {
-                    reserva.setStatus(novaReserva.getStatus());
-                    reserva.setPassageiro(novaReserva.getPassageiro());
-                    reserva.setExcursao(novaReserva.getExcursao());
-                    return ResponseEntity.ok(reservaRepository.save(reserva));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestParam StatusReserva status) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ReservaNotFoundException(id));
+
+
+        Reserva reservaAlt = new Reserva();
+        reservaAlt.setStatus(status);
+
+        Reserva salva = reservaRepository.save(reservaAlt);
+        return ResponseEntity.status(201).body(salva);
     }
 
 
