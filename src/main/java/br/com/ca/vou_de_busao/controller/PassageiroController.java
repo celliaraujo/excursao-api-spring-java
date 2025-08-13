@@ -1,5 +1,6 @@
 package br.com.ca.vou_de_busao.controller;
 
+import br.com.ca.vou_de_busao.exceptions.PassageiroNotFoundException;
 import br.com.ca.vou_de_busao.model.Passageiro;
 import br.com.ca.vou_de_busao.repository.PassageiroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +30,20 @@ public class PassageiroController {
     }
 
     @GetMapping("/nome/{nome}")
-    public List<Passageiro> listarPorNome(@PathVariable String nome){
-
-        return passageiroRepository.findByNome(nome);
+    public ResponseEntity<?> listarPorNome(@PathVariable String nome){
+        List<Passageiro> resultado = passageiroRepository.findByNome(nome);
+        if(resultado.isEmpty()){
+            String mensagem = "Nenhum passageiro encontrado com o nome: " + nome;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensagem);
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Passageiro> buscarPorId(@PathVariable Long id){
         return passageiroRepository.findById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new PassageiroNotFoundException(id));
     }
 
     @PostMapping

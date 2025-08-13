@@ -1,5 +1,6 @@
 package br.com.ca.vou_de_busao.controller;
 
+import br.com.ca.vou_de_busao.exceptions.ExcursaoNotFoundException;
 import br.com.ca.vou_de_busao.model.Excursao;
 import br.com.ca.vou_de_busao.repository.ExcursaoRepository;
 import org.aspectj.bridge.Message;
@@ -43,7 +44,7 @@ public class ExcursaoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Excursao> atualizar(@PathVariable Long id, @RequestBody Excursao novaExcursao) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Excursao novaExcursao) {
         return excursaoRepository.findById(id)
                 .map(excursao -> {
                     excursao.setDestino(novaExcursao.getDestino());
@@ -51,7 +52,7 @@ public class ExcursaoController {
                     excursao.setPreco(novaExcursao.getPreco());
                     return ResponseEntity.ok(excursaoRepository.save(excursao));
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ExcursaoNotFoundException(id));
     }
 
     @DeleteMapping("/{id}")
