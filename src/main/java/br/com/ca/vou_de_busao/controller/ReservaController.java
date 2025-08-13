@@ -73,11 +73,11 @@ public class ReservaController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (reservaRepository.existsById(id)) {
-            reservaRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deletar(@PathVariable Long id) {
+        if (!reservaRepository.existsById(id)) {
+            throw new ReservaNotFoundException(id);
         }
-        return ResponseEntity.notFound().build();
+        reservaRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

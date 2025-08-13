@@ -70,18 +70,19 @@ public class PassageiroController {
             return ResponseEntity.ok(p);
 
         }else{
-            return ResponseEntity.notFound().build();
+            throw new PassageiroNotFoundException(id);
         }
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id){
-        if(passageiroRepository.existsById(id)){
-            passageiroRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+        if(!passageiroRepository.existsById(id)){
+            throw new PassageiroNotFoundException(id);
         }
-        return ResponseEntity.notFound().build();
+        passageiroRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+
     }
 
 }

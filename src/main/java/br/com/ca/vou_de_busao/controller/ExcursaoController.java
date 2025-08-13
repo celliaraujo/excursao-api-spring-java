@@ -60,7 +60,8 @@ public class ExcursaoController {
         if (excursaoRepository.existsById(id)) {
             excursaoRepository.deleteById(id);
             return ResponseEntity.noContent().build();
+        }else{
+            throw new ExcursaoNotFoundException(id);
         }
-        return ResponseEntity.notFound().build();
     }
 }
