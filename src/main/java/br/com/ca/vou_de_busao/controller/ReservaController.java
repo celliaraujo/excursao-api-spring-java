@@ -57,6 +57,12 @@ public class ReservaController {
         return reservaRepository.findByStatus(status);
     }
 
+    @GetMapping("/{id}")
+    public Reserva buscarPorId(@PathVariable Long id) {
+        return reservaRepository.findById(id)
+                .orElseThrow(() -> new ReservaNotFoundException(id));
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestParam StatusReserva status) {
