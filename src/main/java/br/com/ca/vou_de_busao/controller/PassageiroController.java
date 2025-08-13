@@ -31,7 +31,7 @@ public class PassageiroController {
 
     @GetMapping("/nome/{nome}")
     public ResponseEntity<?> listarPorNome(@PathVariable String nome){
-        List<Passageiro> resultado = passageiroRepository.findByNome(nome);
+        List<Passageiro> resultado = passageiroRepository.findByNomeContainingIgnoreCase(nome);
         if(resultado.isEmpty()){
             String mensagem = "Nenhum passageiro encontrado com o nome: " + nome;
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensagem);
