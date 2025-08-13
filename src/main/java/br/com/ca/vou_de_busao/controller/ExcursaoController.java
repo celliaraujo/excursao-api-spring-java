@@ -2,11 +2,15 @@ package br.com.ca.vou_de_busao.controller;
 
 import br.com.ca.vou_de_busao.model.Excursao;
 import br.com.ca.vou_de_busao.repository.ExcursaoRepository;
+import org.aspectj.bridge.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/excursoes")
@@ -27,8 +31,15 @@ public class ExcursaoController {
     }
 
     @GetMapping("/buscar")
-    public List<Excursao> buscarPorDestino(@RequestParam String destino) {
-        return excursaoRepository.findByDestinoContainingIgnoreCase(destino);
+    public ResponseEntity<?> buscarPorDestino(@RequestParam String destino) {
+        List<Excursao> resultados = excursaoRepository.findByDestinoContainingIgnoreCase(destino);
+        if (resultados.isEmpty()) {
+            String mensagem = "Nenhum destino encontrado com o nome: " + destino;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(mensagem);
+        }
+
+        return ResponseEntity.ok(resultados);
     }
 
     @PutMapping("/{id}")
