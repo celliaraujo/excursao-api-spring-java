@@ -2,66 +2,64 @@ package br.com.ca.vou_de_busao.controller;
 
 import br.com.ca.vou_de_busao.exceptions.ExcursaoNotFoundException;
 import br.com.ca.vou_de_busao.model.Excursao;
-import br.com.ca.vou_de_busao.repository.ExcursaoRepository;
-import org.aspectj.bridge.Message;
+import br.com.ca.vou_de_busao.service.ExcursaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/excursoes")
 public class ExcursaoController {
 
     @Autowired
-    private ExcursaoRepository excursaoRepository;
+    private ExcursaoService excursaoService;
 
     @PostMapping
-    public ResponseEntity<Excursao> criar(@RequestBody Excursao excursao) {
-        Excursao salva = excursaoRepository.save(excursao);
-        return ResponseEntity.status(201).body(salva);
+    public ResponseEntity<?> criar(@RequestBody Excursao excursao) {
+        try{
+            Excursao salva = excursaoService.criar(excursao);
+            return ResponseEntity.status(HttpStatus.CREATED).body(salva);
+        }catch (IllegalArgumentException ex){
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @GetMapping
     public List<Excursao> listar() {
-        return excursaoRepository.findAll();
+        return excursaoService.listar();
     }
 
     @GetMapping("/buscar")
     public ResponseEntity<?> buscarPorDestino(@RequestParam String destino) {
-        List<Excursao> resultados = excursaoRepository.findByDestinoContainingIgnoreCase(destino);
-        if (resultados.isEmpty()) {
-            String mensagem = "Nenhum destino encontrado com o nome: " + destino;
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(mensagem);
+        try{
+            List<Excursao> resultados = excursaoService.buscarPorDestino(destino);
+            return ResponseEntity.ok(resultados);
+        }catch(ExcursaoNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
-
-        return ResponseEntity.ok(resultados);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Excursao novaExcursao) {
-        return excursaoRepository.findById(id)
-                .map(excursao -> {
-                    excursao.setDestino(novaExcursao.getDestino());
-                    excursao.setData(novaExcursao.getData());
-                    excursao.setPreco(novaExcursao.getPreco());
-                    return ResponseEntity.ok(excursaoRepository.save(excursao));
-                })
-                .orElseThrow(() -> new ExcursaoNotFoundException(id));
+        try{
+            Excursao atualizada = excursaoService.atualizar(id, novaExcursao);
+            return ResponseEntity.ok(atualizada);
+        }catch(IllegalArgumentException ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (excursaoRepository.existsById(id)) {
-            excursaoRepository.deleteById(id);
+    public ResponseEntity<?> deletar(@PathVariable Long id) {
+        try{
+            excursaoService.deletar(id);
             return ResponseEntity.noContent().build();
-        }else{
-            throw new ExcursaoNotFoundException(id);
+        }catch(ExcursaoNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 }

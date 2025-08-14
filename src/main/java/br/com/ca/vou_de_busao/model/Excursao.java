@@ -1,7 +1,9 @@
 package br.com.ca.vou_de_busao.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,8 @@ public class Excursao {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
     private String destino;
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    @Schema(example = "14/08/2025", type = "string", format = "date")
     private LocalDate data;
     private BigDecimal preco;
 
