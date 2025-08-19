@@ -11,9 +11,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.br.CPF;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +29,13 @@ public class Passageiro {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
     @Column(unique = true, nullable = false)
+    @CPF(message = "CPF inválido")
     private String cpf;
     @Column(nullable = false)
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
     @Column(nullable = false)
+    @NotBlank(message = "Telefone é obrigatório")
     private String telefone;
 
     @ManyToOne

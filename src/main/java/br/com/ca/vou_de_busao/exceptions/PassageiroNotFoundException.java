@@ -5,4 +5,9 @@ public class PassageiroNotFoundException extends RuntimeException {
 
         super(String.format("Passageiro com id = %s não encontrado.\n", id));
     }
+
+    public PassageiroNotFoundException(String nome){
+
+        super(String.format("Passageiro com nome = %s não encontrado.\n", nome));
+    }
 }

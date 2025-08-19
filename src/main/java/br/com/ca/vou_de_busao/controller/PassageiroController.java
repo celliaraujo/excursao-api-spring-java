@@ -2,7 +2,8 @@ package br.com.ca.vou_de_busao.controller;
 
 import br.com.ca.vou_de_busao.exceptions.PassageiroNotFoundException;
 import br.com.ca.vou_de_busao.model.Passageiro;
-import br.com.ca.vou_de_busao.repository.PassageiroRepository;
+import br.com.ca.vou_de_busao.service.PassageiroService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,50 +23,47 @@ import java.util.Optional;
 @RequestMapping("/passageiros")
 public class PassageiroController {
     @Autowired
-    private PassageiroRepository passageiroRepository;
+    private PassageiroService passageiroService;
 
     @GetMapping
     public List<Passageiro> listarTodos(){
-        return passageiroRepository.findAll();
+        return passageiroService.listarTodos();
     }
 
     @GetMapping("/nome/{nome}")
     public ResponseEntity<?> listarPorNome(@PathVariable String nome){
-        List<Passageiro> resultado = passageiroRepository.findByNomeContainingIgnoreCase(nome);
-        if(resultado.isEmpty()){
-            String mensagem = "Nenhum passageiro encontrado com o nome: " + nome;
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensagem);
+        try {
+            List<Passageiro> resultado = passageiroService.buscarPorNome(nome);
+            return ResponseEntity.ok(resultado);
+
+        }catch (PassageiroNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
-        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Passageiro> buscarPorId(@PathVariable Long id){
-        return passageiroRepository.findById(id)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id){
+        Optional<Passageiro> passageiro = passageiroService.buscarPorId(id);
+        return passageiro.map(ResponseEntity::ok)
                 .orElseThrow(() -> new PassageiroNotFoundException(id));
     }
 
     @PostMapping
-    public ResponseEntity<?> criar(@RequestBody Passageiro passageiro){
-        if (passageiroRepository.existsByCpf(passageiro.getCpf())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Já existe um passageiro com esse CPF.");
-        }
-        Passageiro salvo = passageiroRepository.save(passageiro);
+    public ResponseEntity<?> criar(@Valid @RequestBody Passageiro passageiro){
+        Passageiro salvo = passageiroService.criar(passageiro);
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Passageiro> atualizar(@PathVariable Long id, @RequestBody Passageiro dados){
-        Optional<Passageiro> passageiro = passageiroRepository.findById(id);
+        Optional<Passageiro> passageiro = passageiroService.buscarPorId(id);
 
         if(passageiro.isPresent()) {
             Passageiro p = passageiro.get();
             p.setNome(dados.getNome());
             p.setCpf(dados.getCpf());
             p.setTelefone(dados.getTelefone());
-            passageiroRepository.save(p);
+            passageiroService.atualizar(id, p);
 
             return ResponseEntity.ok(p);
 
@@ -77,10 +75,7 @@ public class PassageiroController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id){
-        if(!passageiroRepository.existsById(id)){
-            throw new PassageiroNotFoundException(id);
-        }
-        passageiroRepository.deleteById(id);
+        passageiroService.deletar(id);
         return ResponseEntity.noContent().build();
 
     }
